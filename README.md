@@ -1,6 +1,6 @@
 # About FakeHiFi
 
-Language: [English](https://github.com/Rckmuyue/FakeHiFi/README.md "English") / [中文](https://github.com/Rckmuyue/FakeHiFi/README_zh-cn.md "中文")
+Language: [English](https://github.com/Rckmuyue/FakeHiFi/main/README.md "English") / [中文](https://github.com/Rckmuyue/FakeHiFi/main/README_zh-cn.md "中文")
 
 ~~This program is used to restore the high frequencies cut off in MP3 music files.~~
 

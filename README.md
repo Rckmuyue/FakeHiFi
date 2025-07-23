@@ -3,6 +3,7 @@
 Language: [English](https://github.com/Rckmuyue/FakeHiFi/README.md "English") / [中文](https://github.com/Rckmuyue/FakeHiFi/README_zh-cn.md "中文")
 
 ~~This program is used to restore the high frequencies cut off in MP3 music files.~~
+
 In fact, this program is **a satire of the so-called “AI restoration” by certain music platforms (like KuGou Music)**.
 
 > Note: This program does **not** have any real high-frequency restoration capabilities!

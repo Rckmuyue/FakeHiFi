@@ -15,6 +15,7 @@ In fact, this program is **a satire of the so-called “AI restoration” by cer
 ## Demo Comparison
 
 Music used: **Zhou Shen – The Light**
+
 Original source: **48KHz / 24bit**
 
 | "AI Repair" by Certain Platform (e.g., KuGou)                                                                                                                                     | Fake High-Frequency Effect by This Program                                                                                                                                         |

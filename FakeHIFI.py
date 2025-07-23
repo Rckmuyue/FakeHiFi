@@ -1,6 +1,6 @@
 import numpy as np
 
-# 修复 numpy 警告
+# Fix numpy warnings
 if not hasattr(np, 'float'):
     np.float = float
 if not hasattr(np, 'complex'):
@@ -30,11 +30,12 @@ def generate_fake_high_freq(
     cutoff_bin = np.argmax(freqs >= cutoff_freq)
     max_bin = np.argmax(freqs >= target_max_freq)
     if max_bin <= cutoff_bin:
-        max_bin = mag.shape[0]
+        # Invalid frequency band, return original audio directly
+        return y
 
     high_len = max_bin - cutoff_bin
     if high_len <= 0:
-        # 频段非法，直接返回原音
+        # Invalid frequency band, return original audio directly
         return y
 
     decay_envelope = 0.5 * (1 + np.cos(np.linspace(0, np.pi, high_len)))
@@ -87,7 +88,7 @@ def process_audio(
     y, sr = librosa.load(file_path, sr=None, mono=False)
     base_name = os.path.splitext(os.path.basename(file_path))[0]
 
-    # 保证采样率至少96000Hz以支持高频伪造
+    # Ensure sample rate is at least 96000Hz to support high-frequency generation
     desired_sr = max(out_sr or sr, 96000)
     if sr < desired_sr:
         y = librosa.resample(y, orig_sr=sr, target_sr=desired_sr)
@@ -101,7 +102,6 @@ def process_audio(
             y_out = librosa.resample(y_out, orig_sr=sr, target_sr=out_sr)
         sf.write(os.path.join(output_dir, base_name + '_fake.wav'), y_out, out_sr, subtype=bitdepth)
         plot_spectrogram(y, sr, "Original Mono", os.path.join(output_dir, base_name + '_original.png'))
-        # 画图时用较小的n_fft以加快速度和清晰展示
         plot_spectrogram(y_out, out_sr, "Modified Mono", os.path.join(output_dir, base_name + '_modified.png'))
     else:
         y_out = []
@@ -117,33 +117,33 @@ def process_audio(
 
 def get_args():
     if len(sys.argv) > 1:
-        parser = argparse.ArgumentParser(description="音频高频伪造工具 - 高频兼容版")
-        parser.add_argument("file", help="输入音频文件路径（WAV）")
-        parser.add_argument("--cutoff", type=int, default=22000, help="伪造起始频率（Hz）")
-        parser.add_argument("--maxfreq", type=int, default=47500, help="伪造最高频率（Hz）")
-        parser.add_argument("--transition", type=int, default=1500, help="交接区宽度（Hz）")
-        parser.add_argument("--gain", type=float, default=1.5, help="伪造幅度放大倍数")
-        parser.add_argument("--out", default="output", help="输出目录")
-        parser.add_argument("--out_sr", type=int, default=None, help="输出采样率（Hz），默认为输入采样率")
-        parser.add_argument("--bitdepth", default="PCM_32", help="输出位深：PCM_16 / PCM_24 / PCM_32 / FLOAT")
-        parser.add_argument("--n_fft", type=int, default=8192, help="STFT窗长，越大频率分辨率越高")
-        parser.add_argument("--hop_length", type=int, default=2048, help="STFT跳帧长度")
+        parser = argparse.ArgumentParser(description="FakeHIFI V1.0 by.Muyue")
+        parser.add_argument("file", help="Input audio file path (WAV)")
+        parser.add_argument("--cutoff", type=int, default=22000, help="Start frequency for generation (Hz)")
+        parser.add_argument("--maxfreq", type=int, default=47500, help="Maximum frequency for generation (Hz)")
+        parser.add_argument("--transition", type=int, default=1500, help="Transition band width (Hz)")
+        parser.add_argument("--gain", type=float, default=1.5, help="Amplitude gain for generated frequencies")
+        parser.add_argument("--out", default="output", help="Output directory")
+        parser.add_argument("--out_sr", type=int, default=None, help="Output sample rate (Hz), defaults to input sample rate")
+        parser.add_argument("--bitdepth", default="PCM_32", help="Output bit depth: PCM_16 / PCM_24 / PCM_32 / FLOAT")
+        parser.add_argument("--n_fft", type=int, default=8192, help="STFT window length, higher value means higher frequency resolution")
+        parser.add_argument("--hop_length", type=int, default=2048, help="STFT hop length")
         return parser.parse_args()
     else:
-        print("音频高频伪造工具 V2.0 - 高频兼容版 by 沐月")
+        print("FakeHIFI V1.0 by.Muyue")
         print("==============================================")
-        print("交互模式：请输入以下参数")
-        file = input("输入文件路径: ").strip()
-        cutoff = int(input("伪造起始频率 (默认22000): ") or 22000)
-        maxfreq = int(input("伪造最高频率 (默认47500): ") or 47500)
-        transition = int(input("交接区宽度Hz (默认1500): ") or 1500)
-        gain = float(input("幅度放大倍数 (默认1.5): ") or 1.5)
-        output = input("输出目录 (默认 output): ") or "output"
-        out_sr = input("输出采样率Hz（默认原始或>=96000）: ")
+        print("Interactive Mode: Please enter the following parameters")
+        file = input("Input file path: ").strip()
+        cutoff = int(input("Start frequency for generation (default 22000): ") or 22000)
+        maxfreq = int(input("Maximum frequency for generation (default 47500): ") or 47500)
+        transition = int(input("Transition band width Hz (default 1500): ") or 1500)
+        gain = float(input("Amplitude gain (default 1.5): ") or 1.5)
+        output = input("Output directory (default output): ") or "output"
+        out_sr = input("Output sample rate Hz (default original or >=96000): ")
         out_sr = int(out_sr) if out_sr else None
-        bitdepth = input("输出位深（PCM_16/24/32/FLOAT，默认 PCM_32）: ") or "PCM_32"
-        n_fft = int(input("STFT窗长 n_fft (默认8192): ") or 8192)
-        hop_length = int(input("STFT跳帧长度 hop_length (默认2048): ") or 2048)
+        bitdepth = input("Output bit depth (PCM_16/24/32/FLOAT, default PCM_32): ") or "PCM_32"
+        n_fft = int(input("STFT window length n_fft (default 8192): ") or 8192)
+        hop_length = int(input("STFT hop length hop_length (default 2048): ") or 2048)
 
         class Args:
             pass
